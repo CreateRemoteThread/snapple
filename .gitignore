@@ -1,6 +1,7 @@
 test
 snapple-*/
 *.dns
+domains.*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

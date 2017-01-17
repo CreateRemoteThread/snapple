@@ -79,7 +79,12 @@ class snapAll:
   def _testConnection(self,url,port):
     sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     # print url
-    result = sock.connect_ex( (url,port) )
+    try:
+      result = sock.connect_ex( (url,port) )
+    except:
+      print " [!] exception trying to test %s:%d" % (url,port)
+      sock.close()
+      return False
     if result == 0:
       sock.close()
       return True
