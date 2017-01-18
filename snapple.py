@@ -6,6 +6,7 @@ import random
 import string
 import socket
 import base64
+import time
 
 snap_js_src = "dmFyIHN5c3RlbSA9IHJlcXVpcmUoJ3N5c3RlbScpOwp2YXIgcGFnZSA9IHJlcXVpcmUoJ3dlYnBhZ2UnKS5jcmVhdGUoKTsKcGFnZS5zZXR0aW5ncy51c2VyQWdlbnQgPSAnTW96aWxsYS81LjAgKFgxMTsgTGludXggeDg2XzY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvMjguMC4xNTAwLjcxIFNhZmFyaS81MzcuMzYnOwpwYWdlLnZpZXdwb3J0U2l6ZSA9IHsgd2lkdGg6IDEwMjQsIGhlaWdodDogNzY4IH07CnBhZ2UuY2xpcFJlY3QgPSB7IHRvcDogMCwgbGVmdDogMCwgd2lkdGg6IDEwMjQsIGhlaWdodDogNzY4IH07CnBhZ2Uub3BlbihzeXN0ZW0uYXJnc1sxXSwgZnVuY3Rpb24oKSB7CiAgcGFnZS5yZW5kZXIoc3lzdGVtLmFyZ3NbMl0pOwogcGhhbnRvbS5leGl0KCk7Cn0pOwoK"
 
@@ -93,6 +94,7 @@ class snapAll:
       return False
 
 if __name__ == "__main__":
+  start = time.time()
   if os.path.exists("snap.js") is False:
     print " [+] creating snap.js"
     f = open("snap.js","w")
@@ -105,4 +107,6 @@ if __name__ == "__main__":
   data = f.readlines()
   f.close()
   n = snapAll(data)
-  os.system("~/slackmsg/ping.py recon complete")
+  end = time.time()
+  elapsed = str(datetime.timedelta(seconds=(end - start)))
+  os.system("~/slackmsg/ping.py recon complete %s elapsed %d hosts scanned" % (elapsed,len(data)))
