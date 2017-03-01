@@ -80,6 +80,7 @@ class snapAll:
   def _testConnection(self,url,port):
     sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     # print url
+    sock.settimeout(2.0)
     try:
       result = sock.connect_ex( (url,port) )
     except:
