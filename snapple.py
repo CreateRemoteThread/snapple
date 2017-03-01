@@ -13,7 +13,7 @@ snap_js_src = "dmFyIHN5c3RlbSA9IHJlcXVpcmUoJ3N5c3RlbScpOwp2YXIgcGFnZSA9IHJlcXVpc
 # requires: PhantomJS
 #           convert (ImageMagick)
 
-PHANTOMJS = "/home/charlemagne/software/phantomjs-2.1.1-linux-x86_64/bin/phantomjs --ignore-ssl-errors=yes"
+PHANTOMJS = "~/phantomjs --ignore-ssl-errors=yes"
 
 class snapAll:
   def __init__(self,urls):
@@ -80,6 +80,7 @@ class snapAll:
   def _testConnection(self,url,port):
     sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     # print url
+    sock.settimeout(2.0)
     try:
       result = sock.connect_ex( (url,port) )
     except:
