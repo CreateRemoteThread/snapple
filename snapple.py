@@ -110,4 +110,4 @@ if __name__ == "__main__":
   n = snapAll(data)
   end = time.time()
   elapsed = str(datetime.timedelta(seconds=(end - start)))
-  os.system("~/slackmsg/ping.py recon complete %s elapsed %d hosts scanned" % (elapsed,len(data)))
+  print " [!] recon complete: %s elapsed, %d hosts scanned" % (elapsed,len(data))
