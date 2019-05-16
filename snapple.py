@@ -8,13 +8,14 @@ import socket
 import base64
 import time
 import datetime
+import subprocess
 
 snap_js_src = "dmFyIHN5c3RlbSA9IHJlcXVpcmUoJ3N5c3RlbScpOwp2YXIgcGFnZSA9IHJlcXVpcmUoJ3dlYnBhZ2UnKS5jcmVhdGUoKTsKcGFnZS5zZXR0aW5ncy51c2VyQWdlbnQgPSAnTW96aWxsYS81LjAgKFgxMTsgTGludXggeDg2XzY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvMjguMC4xNTAwLjcxIFNhZmFyaS81MzcuMzYnOwpwYWdlLnZpZXdwb3J0U2l6ZSA9IHsgd2lkdGg6IDEwMjQsIGhlaWdodDogNzY4IH07CnBhZ2UuY2xpcFJlY3QgPSB7IHRvcDogMCwgbGVmdDogMCwgd2lkdGg6IDEwMjQsIGhlaWdodDogNzY4IH07CnBhZ2Uub3BlbihzeXN0ZW0uYXJnc1sxXSwgZnVuY3Rpb24oKSB7CiAgcGFnZS5yZW5kZXIoc3lzdGVtLmFyZ3NbMl0pOwogcGhhbnRvbS5leGl0KCk7Cn0pOwoK"
 
 # requires: PhantomJS
 #           convert (ImageMagick)
 
-PHANTOMJS = "phantomjs --ignore-ssl-errors=yes"
+PHANTOMJS = "./phantomjs --ignore-ssl-errors=yes"
 
 class snapAll:
   def __init__(self,urls):
@@ -36,7 +37,24 @@ class snapAll:
       if self._testConnection(url,80):
         command = "%s snap.js http://%s %s/%s" % (PHANTOMJS,url,dirname + "/images_80",pngName)
         print " [>] %s" % command
-        os.system(command)
+        p = subprocess.Popen(command.split(" "))
+        timeout = 3
+        while p.poll() is None and timeout > 0:
+            time.sleep(1)
+            timeout -= 1
+        if timeout == 0:
+            try:
+                print " [!] killing process"
+                p.kill()
+            except:
+                print " [!] process won the race"
+                pass
+        # try:
+        #     p.wait(timeout=2000)
+        # except:
+        #     print " [!] Killing process"
+        #     p.kill()
+        # os.system(command)
         command = "convert %s/%s -resize 320x280 %s/mini-%s" % (dirname + "/images_80",pngName,dirname + "/images_80",pngName)
         print " [>] %s" % command
         os.system(command)
@@ -45,7 +63,18 @@ class snapAll:
       if self._testConnection(url,443):
         command = "%s snap.js https://%s %s/%s" % (PHANTOMJS,url,dirname + "/images_443" ,pngName)
         print " [>] %s" % command
-        os.system(command)
+        p = subprocess.Popen(command.split(" "))
+        timeout = 3
+        while p.poll() is None and timeout > 0:
+            time.sleep(1)
+            timeout -= 1
+        if timeout == 0:
+            try:
+                print " [!] killing process"
+                p.kill()
+            except:
+                print " [!] process won the race"
+                pass
         command = "convert %s/%s -resize 320x280 %s/mini-%s" % (dirname + "/images_443",pngName,dirname + "/images_443",pngName)
         print " [>] %s" % command
         os.system(command)
