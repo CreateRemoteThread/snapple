@@ -23,6 +23,8 @@ class snapAll:
     os.mkdir(dirname)
     os.mkdir(dirname + "/images_80")
     os.mkdir(dirname + "/images_443")
+    os.mkdir(dirname + "/resp_80")
+    os.mkdir(dirname + "/resp_443")
     self.screencapsDb = {} 
     for _url in urls: 
       url = _url.rstrip()
@@ -30,6 +32,7 @@ class snapAll:
         print " [!] skipping %s" % url
         continue
       pngName = url.replace(".","_") + ".png"
+      respName = url.replace(".","_") + ".json"
       screencap_80 = "none"
       screencap_443 = "none"
       minicap_80 = "none"
@@ -37,8 +40,10 @@ class snapAll:
       if self._testConnection(url,80):
         command = "%s snap.js http://%s %s/%s" % (PHANTOMJS,url,dirname + "/images_80",pngName)
         print " [>] %s" % command
-        p = subprocess.Popen(command.split(" "))
-        timeout = 3
+        p = subprocess.Popen(command.split(" "),stdout=f)
+        js_out = dirname + "/resp_80/" + respName
+        f = open(js_out,"w")
+        timeout = 5
         while p.poll() is None and timeout > 0:
             time.sleep(1)
             timeout -= 1
@@ -49,12 +54,7 @@ class snapAll:
             except:
                 print " [!] process won the race"
                 pass
-        # try:
-        #     p.wait(timeout=2000)
-        # except:
-        #     print " [!] Killing process"
-        #     p.kill()
-        # os.system(command)
+        f.close()
         command = "convert %s/%s -resize 320x280 %s/mini-%s" % (dirname + "/images_80",pngName,dirname + "/images_80",pngName)
         print " [>] %s" % command
         os.system(command)
@@ -62,9 +62,11 @@ class snapAll:
         minicap_80 = "images_80/mini-%s" % pngName
       if self._testConnection(url,443):
         command = "%s snap.js https://%s %s/%s" % (PHANTOMJS,url,dirname + "/images_443" ,pngName)
+        js_out = dirname + "/resp_443/" + respName
+        f = open(js_out,"w")
         print " [>] %s" % command
-        p = subprocess.Popen(command.split(" "))
-        timeout = 3
+        p = subprocess.Popen(command.split(" "),stdout=f)
+        timeout = 5
         while p.poll() is None and timeout > 0:
             time.sleep(1)
             timeout -= 1
@@ -75,6 +77,7 @@ class snapAll:
             except:
                 print " [!] process won the race"
                 pass
+        f.close()
         command = "convert %s/%s -resize 320x280 %s/mini-%s" % (dirname + "/images_443",pngName,dirname + "/images_443",pngName)
         print " [>] %s" % command
         os.system(command)
