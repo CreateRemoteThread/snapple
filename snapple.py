@@ -10,7 +10,8 @@ import time
 import datetime
 import subprocess
 
-snap_js_src = "dmFyIHN5c3RlbSA9IHJlcXVpcmUoJ3N5c3RlbScpOwp2YXIgcGFnZSA9IHJlcXVpcmUoJ3dlYnBhZ2UnKS5jcmVhdGUoKTsKcGFnZS5zZXR0aW5ncy51c2VyQWdlbnQgPSAnTW96aWxsYS81LjAgKFgxMTsgTGludXggeDg2XzY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvMjguMC4xNTAwLjcxIFNhZmFyaS81MzcuMzYnOwpwYWdlLnZpZXdwb3J0U2l6ZSA9IHsgd2lkdGg6IDEwMjQsIGhlaWdodDogNzY4IH07CnBhZ2UuY2xpcFJlY3QgPSB7IHRvcDogMCwgbGVmdDogMCwgd2lkdGg6IDEwMjQsIGhlaWdodDogNzY4IH07CnBhZ2Uub3BlbihzeXN0ZW0uYXJnc1sxXSwgZnVuY3Rpb24oKSB7CiAgcGFnZS5yZW5kZXIoc3lzdGVtLmFyZ3NbMl0pOwogcGhhbnRvbS5leGl0KCk7Cn0pOwoK"
+snap_js_src = "dmFyIHN5c3RlbSA9IHJlcXVpcmUoJ3N5c3RlbScpOwp2YXIgcGFnZSA9IHJlcXVpcmUoJ3dlYnBuZ2UnKS5jcmVhdGUoKTsKcGFnZS5zZXR0aW5ncy51c2VyQWdlbnQgPSAnTW96aWxsYS81LjAgKFgxMTsgTGludXggeDg2XzY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvMjguMC4xNTAwLjcxIFNhZmFyaS81MzcuMzYnOwpwYWdlLnZpZXdwb3J0U2l6ZSA9IHsgd2lkdGg6IDEwMjQsIGhlaWdodDogNzY4IH07CnBhZ2UuY2xpcFJlY3QgPSB7IHRvcDogMCwgbGVmdDogMCwgd2lkdGg6IDEwMjQsIGhlaWdodDogNzY4IH07CnBhZ2Uub25SZXNvdXJjZVJlY2VpdmVkID0gZnVuY3Rpb24ocmVzcG9uc2UpCnsKICBjb25zb2xlLmxvZyhKU09OLnN0cmluZ2lmeShyZXNwb25zZSkpOwp9CnBhZ2Uub3BlbihzeXN0ZW0uYXJnc1sxXSwgZnVuY3Rpb24oKSB7CiAgcGFnZS5yZW5kZXIoc3lzdGVtLmFyZ3NbMl0pOwogIHBoYW50b20uZXhpdCgpOwp9KTsKCg=="
+
 
 # requires: PhantomJS
 #           convert (ImageMagick)
@@ -40,9 +41,9 @@ class snapAll:
       if self._testConnection(url,80):
         command = "%s snap.js http://%s %s/%s" % (PHANTOMJS,url,dirname + "/images_80",pngName)
         print " [>] %s" % command
-        p = subprocess.Popen(command.split(" "),stdout=f)
         js_out = dirname + "/resp_80/" + respName
         f = open(js_out,"w")
+        p = subprocess.Popen(command.split(" "),stdout=f)
         timeout = 5
         while p.poll() is None and timeout > 0:
             time.sleep(1)
@@ -83,7 +84,15 @@ class snapAll:
         os.system(command)
         screencap_443 = "images_443/%s" % pngName
         minicap_443 = "images_443/mini-%s" % pngName
-      self.screencapsDb[url] = (screencap_80,screencap_443,minicap_80,minicap_443)
+      try:
+        actualDNS = str(socket.gethostbyname(url))
+      except:
+        actualDNS = "gethostbyname fail"
+      try:
+        reverseDNS = str(socket.gethostbyaddr(actualDNS)[0])
+      except:
+        reverseDNS = "gethostbyaddr fail"
+      self.screencapsDb[url] = (screencap_80,screencap_443,minicap_80,minicap_443,respName,actualDNS,reverseDNS)
     self._printHtml(dirname)
 
   def _printHtml(self,dirname):
@@ -95,16 +104,16 @@ class snapAll:
     f.write("<tr><td>site</td><td>port 80</td><td>port 443</td></tr>\n")
     for key in self.screencapsDb.keys():
       f.write("<tr>\n")
-      (screencap_80,screencap_443,minicap_80,minicap_443) = self.screencapsDb[key]
-      f.write("<td>%s</td>\n" % key)
+      (screencap_80,screencap_443,minicap_80,minicap_443,jsonName,actualDNS,reverseDNS) = self.screencapsDb[key]
+      f.write("<td>%s<p>%s<p>%s</td>\n" % (key,actualDNS,reverseDNS))
       if minicap_80 == "none":
         f.write("<td>none</td>\n")
       else:
-        f.write("<td><a href=\"%s\"><img src=\"%s\"></a></td>\n" % (screencap_80,minicap_80))
+        f.write("<td><a href=\"%s\"><img src=\"%s\"></a><p><a href=\"%s\">json</a></td>\n" % (screencap_80,minicap_80,"resp_80/" + jsonName))
       if minicap_443 == "none":
         f.write("<td>none</td>\n")
       else:
-        f.write("<td><a href=\"%s\"><img src=\"%s\"></a></td>\n" % (screencap_443,minicap_443))
+        f.write("<td><a href=\"%s\"><img src=\"%s\"></a><p><a href=\"%s\">json</a></td>\n" % (screencap_443,minicap_443,"resp_443/" + jsonName))
       f.write("</tr>\n")
     f.write("</table>\n")
     f.write("</html>\n")
