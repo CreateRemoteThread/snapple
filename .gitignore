@@ -3,6 +3,7 @@ test
 snapple-*/
 *.dns
 domains.*
+phantomjs
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
