@@ -1,3 +1,4 @@
+*.lst
 test
 snapple-*/
 *.dns
