@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 import sys
 import os
@@ -29,8 +29,8 @@ class snapAll:
     self.screencapsDb = {} 
     for _url in urls: 
       url = _url.rstrip()
-      if url in self.screencapsDb.keys():
-        print " [!] skipping %s" % url
+      if url in list(self.screencapsDb.keys()):
+        print(" [!] skipping %s" % url)
         continue
       pngName = url.replace(".","_") + ".png"
       respName = url.replace(".","_") + ".json"
@@ -40,7 +40,7 @@ class snapAll:
       minicap_443 = "none"
       if self._testConnection(url,80):
         command = "%s snap.js http://%s %s/%s" % (PHANTOMJS,url,dirname + "/images_80",pngName)
-        print " [>] %s" % command
+        print(" [>] %s" % command)
         js_out = dirname + "/resp_80/" + respName
         f = open(js_out,"w")
         p = subprocess.Popen(command.split(" "),stdout=f)
@@ -50,14 +50,14 @@ class snapAll:
             timeout -= 1
         if timeout == 0:
             try:
-                print " [!] killing process"
+                print(" [!] killing process")
                 p.kill()
             except:
-                print " [!] process won the race"
+                print(" [!] process won the race")
                 pass
         f.close()
         command = "convert %s/%s -resize 320x280 %s/mini-%s" % (dirname + "/images_80",pngName,dirname + "/images_80",pngName)
-        print " [>] %s" % command
+        print(" [>] %s" % command)
         os.system(command)
         screencap_80 = "images_80/%s" % pngName
         minicap_80 = "images_80/mini-%s" % pngName
@@ -65,7 +65,7 @@ class snapAll:
         command = "%s snap.js https://%s %s/%s" % (PHANTOMJS,url,dirname + "/images_443" ,pngName)
         js_out = dirname + "/resp_443/" + respName
         f = open(js_out,"w")
-        print " [>] %s" % command
+        print(" [>] %s" % command)
         p = subprocess.Popen(command.split(" "),stdout=f)
         timeout = 5
         while p.poll() is None and timeout > 0:
@@ -73,14 +73,14 @@ class snapAll:
             timeout -= 1
         if timeout == 0:
             try:
-                print " [!] killing process"
+                print(" [!] killing process")
                 p.kill()
             except:
-                print " [!] process won the race"
+                print(" [!] process won the race")
                 pass
         f.close()
         command = "convert %s/%s -resize 320x280 %s/mini-%s" % (dirname + "/images_443",pngName,dirname + "/images_443",pngName)
-        print " [>] %s" % command
+        print(" [>] %s" % command)
         os.system(command)
         screencap_443 = "images_443/%s" % pngName
         minicap_443 = "images_443/mini-%s" % pngName
@@ -96,13 +96,13 @@ class snapAll:
     self._printHtml(dirname)
 
   def _printHtml(self,dirname):
-    print " [>] printing %s/index.html" % dirname
+    print(" [>] printing %s/index.html" % dirname)
     f = open(dirname + "/index.html","w")
     f.write("<html>\n")
     f.write("<head><title>%s</title></head>\n" % dirname)
     f.write("<table border=\"1\">\n")
     f.write("<tr><td>site</td><td>port 80</td><td>port 443</td></tr>\n")
-    for key in self.screencapsDb.keys():
+    for key in list(self.screencapsDb.keys()):
       f.write("<tr>\n")
       (screencap_80,screencap_443,minicap_80,minicap_443,jsonName,actualDNS,reverseDNS) = self.screencapsDb[key]
       f.write("<td>%s<p>%s<p>%s</td>\n" % (key,actualDNS,reverseDNS))
@@ -126,25 +126,26 @@ class snapAll:
     try:
       result = sock.connect_ex( (url,port) )
     except:
-      print " [!] exception trying to test %s:%d" % (url,port)
+      print(" [!] exception trying to test %s:%d" % (url,port))
       sock.close()
       return False
     if result == 0:
       sock.close()
       return True
     else:
+      print(" [!] timeout testing %s:%d" % (url,port))
       sock.close()
       return False
 
 if __name__ == "__main__":
   start = time.time()
   if os.path.exists("snap.js") is False:
-    print " [+] creating snap.js"
+    print(" [+] creating snap.js")
     f = open("snap.js","w")
     f.write(base64.b64decode(snap_js_src))
     f.close()
   if len(sys.argv) != 2:
-    print " [+] usage: ./snapple.py [list]"
+    print(" [+] usage: ./snapple.py [list]")
     sys.exit(0)
   f = open(sys.argv[1])
   data = f.readlines()
@@ -152,4 +153,4 @@ if __name__ == "__main__":
   n = snapAll(data)
   end = time.time()
   elapsed = str(datetime.timedelta(seconds=(end - start)))
-  print " [!] recon complete: %s elapsed, %d hosts scanned" % (elapsed,len(data))
+  print(" [!] recon complete: %s elapsed, %d hosts scanned" % (elapsed,len(data)))

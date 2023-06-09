@@ -7,3 +7,8 @@ to launch this, run ./snapple [list], where [list] is a one-host-or-ip-per-line.
 
 requires imagemagick (for 'convert') and phantomjs
 
+## phantomjs is broken
+
+see https://github.com/ariya/phantomjs/issues/15449
+
+comment out "ssl_conf = ssl_sect" in /etc/ssl/openssl.cnf 
